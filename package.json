@@ -1,0 +1,29 @@
+{
+  "name": "nodescrapper",
+  "version": "1.0.0",
+  "description": "Flight prices scrapper",
+  "main": "teste.js",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "node-telegram-bot-api": "^0.40.0",
+    "nodemon": "^1.19.4",
+    "puppeteer": "^2.0.0",
+    "puppeteer-select": "^1.0.3",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node bin/www.js",
+    "dev": "node -r dotenv/config teste.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davimdantas/node_flight_scraper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davimdantas/node_flight_scraper/issues"
+  },
+  "homepage": "https://github.com/davimdantas/node_flight_scraper#readme"
+}
