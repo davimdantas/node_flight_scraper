@@ -6,7 +6,7 @@ var request = require('request');
 
 
 async function selectFields(page, id_input, data_selecionada) {
-  console.log('data_selecionada :', data_selecionada);
+  // console.log('data_selecionada :', data_selecionada);
   await page.focus(id_input);
   const selector = id_input;
   await page.evaluate(
@@ -27,22 +27,45 @@ async function selectFields(page, id_input, data_selecionada) {
 async function getPrice(page) {
   await page.waitFor(200);
   let preco = await page.evaluate(() => {
-    var campo = document.querySelector('div.fare-details');
-    return campo.textContent;
+    var campo = document.querySelector('div.fare-details').children;
+    let valores = {};
+    // let child = {};
+    for (let index = 0; index < campo.length; index++) {
+      const element = campo[index];
+      let propertyName = '';
+      console.log('element:', element.textContent);
+      for (let j = 0; j < element.children.length; j++) {
+        const node = element.children[j];
+        if (node.className === 'text') {
+          valores[node.innerText] = '';
+          propertyName = node.innerText;
+        } else if (node.className === 'value')
+          valores[propertyName] = node.innerText;
+      }
+      // valores.push(valores);
+    }
+    return valores;
   });
-  console.log('preco :', preco);
-
-  let bot_token = process.env.TELEGRAM_TOKEN;
-  let bot_chatID = '748527644';
-  let send_text =
-  'https://api.telegram.org/bot' +
-  bot_token +
-  '/sendMessage?chat_id=' +
-  bot_chatID + '&parse_mode=Markdown&text=' + encodeURI(preco);
-  console.log('send_text :', send_text);
-  let response = request.get(send_text);
-  console.log('response :', response);
-  ;
+  // console.log('preco:', preco);
+  let valor_total = Number(preco['Valor total'].replace(/[^0-9\,]+/g, '')
+    .replace(/[^0-9]+/g, '.'));
+  // let teste = preco['Valor total'];
+  // console.log('valor_total:', valor_total);
+  if (valor_total < 650) {
+    let bot_token = process.env.TELEGRAM_TOKEN;
+    let bot_chatID = '748527644';
+    let send_text =
+      'https://api.telegram.org/bot' +
+      bot_token +
+      '/sendMessage?chat_id=' +
+      bot_chatID + '&parse_mode=Markdown&text=' +
+      encodeURI(preco['Valor total']);
+    // console.log('send_text :', send_text);
+    // let response = request.get(send_text);
+    request.get(send_text);
+    // console.log('response :', response);
+    ;
+  }
 }
 
 async function selectDepartureCity(
@@ -52,8 +75,8 @@ async function selectDepartureCity(
   classe_campo,
   cidade_completa,
 ) {
-  console.log('cidade_completa ', cidade_completa);
-  console.log('classe_campo ', classe_campo);
+  // console.log('cidade_completa ', cidade_completa);
+  // console.log('classe_campo ', classe_campo);
   await page.focus(id_campo);
   await page.keyboard.type(cidade);
   await page.focus(classe_campo);
@@ -67,7 +90,7 @@ async function selectDepartureCity(
   );
   await element.click();
   // var news = await page.evaluate(({classe_campo, cidade_completa,page }) => {
-  //     console.log('dentro ', classe_campo)
+  // //     console.log('dentro ', classe_campo)
   //     var titleNodeList = document.querySelectorAll(classe_campo);
   //     // let elements = Array.from(document.querySelectorAll(classe_campo));
   //     // let links = elements.map(element => {
@@ -79,7 +102,7 @@ async function selectDepartureCity(
   //         const node = titleNodeList[i];
   //         if (node.textContent == cidade_completa) {
   //             teste = node;
-  //             console.log('node :', node);
+  // //             console.log('node :', node);
   //             page.click(node)
 
   //             setTimeout(() => {
@@ -95,7 +118,7 @@ async function selectDepartureCity(
   // }
   // )
   // news.click()
-  // console.log('cities :', news);
+  // // console.log('cities :', news);
   // cities = await page.querySelectorAll(classe_campo)
   //     , elements =>
   //   elements.map(element => element.innerText == `${cidade_completa}`)
@@ -109,50 +132,48 @@ async function selectDepartureCity(
 // try {
 
 // } catch (error) {
-// console.log('error  2222222222:', error);
+// // console.log('error  2222222222:', error);
 
 // }
 // }
 
-(async() => {
+(async () => {
   console.clear();
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto('https://www.voegol.com.br/pt');
   //   await main_teste(page);
-  console.log('22pornyo');
+  // console.log('22pornyo');
   await page.waitForSelector('#header-chosen-origin');
-  console.log('pornyo');
+  // console.log('pornyo');
   //   await page.focus('#header-chosen-origin');
   await selectDepartureCity(
     page,
     '#header-chosen-origin',
-    'Rio de',
+    'Nata',
     '.active-result',
-    'Rio de Janeiro - Galeão - GIG',
+    'Natal - NAT',
   );
-  await page.screenshot({ path: 'example1 .png' });
+  // await page.screenshot({ path: 'example1 .png' });
 
   await selectDepartureCity(
     page,
     '#header-chosen-destiny',
-    'Natal',
+    'Salv',
     '.active-result',
-    'Natal - NAT',
+    'Salvador - SSA',
   );
 
-  await page.screenshot({ path: 'example 2.png' });
+  // await page.screenshot({ path: 'example 2.png' });
 
-  await selectFields(page, '#datepickerGo', '25/12/2019');
-  await page.screenshot({ path: 'example 3.png' });
+  await selectFields(page, '#datepickerGo', '22/02/2020');
+  // await page.screenshot({ path: 'example 3.png' });
 
-  await selectFields(page, '#datepickerBack', '02/02/2020');
-  await page.screenshot({ path: 'example 4.png' });
+  await selectFields(page, '#datepickerBack', '25/02/2020');
+  // await page.screenshot({ path: 'example 4.png' });
 
-  await selectFields(page, '#number-adults', '1');
-  await selectFields(page, '#number-kids', '1');
-  // # await page.screenshot({'path': 'example.png'})
-  console.log('title ', await page.title());
+  await selectFields(page, '#number-adults', '2');
+  // await selectFields(page, '#number-kids', '1');
   await page.click('button#btn-box-buy');
   await page.waitForSelector('div.fare-details');
   await getPrice(page);
