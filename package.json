@@ -23,7 +23,7 @@
   "scripts": {
     "pretest": "eslint --ignore-path .gitignore .",
     "start": "node bin/www.js",
-    "dev": "node -r dotenv/config teste.js"
+    "dev": "node -r dotenv/config gol.js"
   },
   "repository": {
     "type": "git",
