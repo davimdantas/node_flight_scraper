@@ -51,21 +51,7 @@ async function getPrice(page) {
     .replace(/[^0-9]+/g, '.'));
   // let teste = preco['Valor total'];
   // console.log('valor_total:', valor_total);
-  if (valor_total < 650) {
-    let bot_token = process.env.TELEGRAM_TOKEN;
-    let bot_chatID = '748527644';
-    let send_text =
-      'https://api.telegram.org/bot' +
-      bot_token +
-      '/sendMessage?chat_id=' +
-      bot_chatID + '&parse_mode=Markdown&text=' +
-      encodeURI(preco['Valor total']);
-    // console.log('send_text :', send_text);
-    // let response = request.get(send_text);
-    request.get(send_text);
-    // console.log('response :', response);
-    ;
-  }
+  return [valor_total, preco];
 }
 
 async function selectDepartureCity(
@@ -141,6 +127,11 @@ async function selectDepartureCity(
   console.clear();
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
+  const from = 'Natal';
+  const destination = 'Salvador';
+  const departure_date = '22/02/2020';
+  const return_date = '25/02/2020';
+
   await page.goto('https://www.voegol.com.br/pt');
   //   await main_teste(page);
   // console.log('22pornyo');
@@ -150,7 +141,7 @@ async function selectDepartureCity(
   await selectDepartureCity(
     page,
     '#header-chosen-origin',
-    'Nata',
+    from,
     '.active-result',
     'Natal - NAT',
   );
@@ -159,23 +150,51 @@ async function selectDepartureCity(
   await selectDepartureCity(
     page,
     '#header-chosen-destiny',
-    'Salv',
+    destination,
     '.active-result',
     'Salvador - SSA',
   );
 
   // await page.screenshot({ path: 'example 2.png' });
 
-  await selectFields(page, '#datepickerGo', '22/02/2020');
+  await selectFields(page, '#datepickerGo', departure_date);
   // await page.screenshot({ path: 'example 3.png' });
 
-  await selectFields(page, '#datepickerBack', '25/02/2020');
+  await selectFields(page, '#datepickerBack', return_date);
   // await page.screenshot({ path: 'example 4.png' });
 
   await selectFields(page, '#number-adults', '2');
   // await selectFields(page, '#number-kids', '1');
   await page.click('button#btn-box-buy');
   await page.waitForSelector('div.fare-details');
-  await getPrice(page);
+  let valor = await getPrice(page);
+  let valor_total = valor[0];
+  let preco = valor[1];
+  const users = ['692585166', '748527644'];
+  console.log('valor_total:', valor_total);
+  if (valor_total < 600) {
+    let string_valor = Object.keys(preco)
+      .filter(e => e !== '')
+      .map(key => key + ': ' + preco[key])
+      .join(' \n');
+    string_valor += `\nFrom: ${from} To: ${destination} 
+    ${departure_date}  ${return_date}`;
+    let bot_token = process.env.TELEGRAM_TOKEN;
+    // let bot_chatID = '748527644';
+    for (let i = 0; i < users.length; i++) {
+      const bot_chatID = users[i];
+      let send_text =
+        'https://api.telegram.org/bot' +
+        bot_token +
+        '/sendMessage?chat_id=' +
+        bot_chatID + '&parse_mode=Markdown&text=' +
+        encodeURI(string_valor);
+      // console.log('send_text :', send_text);
+      // let response = request.get(send_text);
+      request.get(send_text);
+      // console.log('response :', response);
+      ;
+    }
+  }
   browser.close();
 })();
